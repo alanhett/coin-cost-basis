@@ -24,9 +24,9 @@ This macro-enabled spreadsheet helps you keep track of the cost basis of your cr
 ## Usage
 
 - Download and open coin-cost-basis.xlsm, enable macros if prompted
-- Create a copy of the blank spreadsheet for each coin you trade.
-- Enter your buys in the buys columns. Include the total coins acquired, and the cost in your local currency (make sure to include any fees related to your purchase, these are typically eligible components of cost basis).
-- Enter your sales in the sell columns (again, netting out any fees from the amount received).
-- Each transaction needs a date, the note is optional.
+- Create a copy of the blank spreadsheet for each coin you trade
+- Enter your buys in the buys columns. Include the total coins acquired, and the cost in your local currency (make sure to include any fees related to your purchase, these are typically eligible components of cost basis)
+- Enter your sales in the sell columns (again, netting out any fees from the amount received)
+- Each transaction needs a date, the note is optional
 
 *Disclaimer: This spreadsheet does not constitute legal or tax advice.  Tax laws and regulations change frequently, and their application can vary widely based on the specific facts and circumstances involved. You are responsible for consulting with your own professional tax advisors concerning specific tax circumstances for your business. Alan Hettinger disclaims any responsibility for the accuracy or adequacy of any positions taken by you in your tax returns.*
