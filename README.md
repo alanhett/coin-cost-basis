@@ -29,4 +29,4 @@ This macro-enabled spreadsheet helps you keep track of the cost basis of your cr
 - Enter your sales in the sell columns (again, netting out any fees from the amount received)
 - Each transaction needs a date, the note is optional
 
-*Disclaimer: This spreadsheet does not constitute legal or tax advice.  Tax laws and regulations change frequently, and their application can vary widely based on the specific facts and circumstances involved. You are responsible for consulting with your own professional tax advisors concerning specific tax circumstances for your business. Alan Hettinger disclaims any responsibility for the accuracy or adequacy of any positions taken by you in your tax returns.*
+*Disclaimer: This spreadsheet does not constitute legal or tax advice.  Tax laws and regulations change frequently, and their application can vary widely based on the specific facts and circumstances involved. You are responsible for consulting with your own professional tax advisors concerning specific tax circumstances for your business. I disclaim any responsibility for the accuracy or adequacy of any positions taken by you in your tax returns.*
