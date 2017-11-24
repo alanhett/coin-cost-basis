@@ -4,6 +4,10 @@ This macro-enabled spreadsheet helps you keep track of the cost basis of your cr
 
 ## Changelog
 
+### 0.5
+- Rows are now unlimited. Add rows to the template as needed.
+- Additional date validation added.
+
 ### 0.4
 - Minor bug fixes as a result of testing
 - Updated long-term test to more strictly adhere to guidance (using anniversary date vs 365 days)

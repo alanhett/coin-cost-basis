@@ -1,6 +1,6 @@
 ' Project:  Coin Cost Basis
 ' Author:   Alan Hettinger
-' Version:  0.4 (Beta) (See changelog at bottom of file)
+' Version:  0.5 (Beta) (See changelog at bottom of file)
 ' Purpose:  Automate cost basis calculations of cryptocurrency
 
 ' constants
@@ -13,11 +13,11 @@ Public Const TX_STATUS = "G"
 Public Const COST_BASIS = "H"
 Public Const GAIN_LOSS = "I"
 Public Const FIRST_ROW = 5
-Public Const LAST_ROW = 400
 
 ' globals
 Public lots() As Variant
 Public sales() As Variant
+Public lastRow As Integer 
 
 ' validate ---------------------------------------------------------------------------------------
 Function validate()
@@ -26,8 +26,17 @@ Function validate()
   coinCheck = 0
   lastDate = 0
 
+  ' find last row with data 
+  lastRow = Cells.Find(What:="*", After:=Range("A1"), LookAt:=xlPart, LookIn:=xlFormulas, _
+            SearchOrder:=xlByRows, SearchDirection:=xlPrevious, MatchCase:=False).Row
+
   ' validate date order
-  For row = FIRST_ROW To LAST_ROW
+  For row = FIRST_ROW To lastRow
+    If Not IsDate(ActiveSheet.Range(TX_DATE & row).Value) _
+    And ActiveSheet.Range(TX_DATE & row).Value <> "" Then
+      MsgBox("Invalid date in row " & row & ".")
+      End
+    End If
     If Not IsEmpty(ActiveSheet.Range(TX_DATE & row).Value) Then
       If DateDiff("d", ActiveSheet.Range(TX_DATE & row).Value, lastDate) <= 0 Then
         lastDate = ActiveSheet.Range(TX_DATE & row).Value
@@ -39,11 +48,11 @@ Function validate()
   Next row
 
   ' validate coin running totals
-  For row = FIRST_ROW To LAST_ROW
+  For row = FIRST_ROW To lastRow
     If ActiveSheet.Range(BUY_COIN & row).Value > 0 _
     Or ActiveSheet.Range(SELL_COIN & row).Value > 0 Then
       If coinCheck - ActiveSheet.Range(SELL_COIN & row).Value < 0 Then
-        MsgBox("There were not enough coin buys for all of your coin sales. " _
+        MsgBox("There were not enough coin buys to support all of your coin sales. " _
         & "Ensure that you have recorded all of your coin buys.")
         End
       Else
@@ -54,7 +63,7 @@ Function validate()
     End If
   Next row
 
-  For row = FIRST_ROW To LAST_ROW
+  For row = FIRST_ROW To lastRow
     If ActiveSheet.Range(BUY_COIN & row).Value > 0 Then
       If IsDate(ActiveSheet.Range(TX_DATE & row).Value) And _
       (IsNumeric(ActiveSheet.Range(BUY_COST & row).Value) Or _
@@ -80,12 +89,14 @@ Function validate()
       End If
     End If
   Next row
+  ' if all data is valid, clear sheet
+  ActiveSheet.Range(TX_STATUS & FIRST_ROW & ":" & GAIN_LOSS & lastRow ).Value = ""
 End Function
 
 ' set global variables ---------------------------------------------------------------------------
 Function getLots()
   lot = 0
-  For row = FIRST_ROW To LAST_ROW
+  For row = FIRST_ROW To lastRow
     If ActiveSheet.Range(BUY_COIN & row).Value > 0 Then
       ReDim Preserve lots(3, lot)
       lots(0, lot) = ActiveSheet.Range(TX_DATE & row).Value
@@ -99,7 +110,7 @@ End Function
 
 Function getSales()
   sale = 0
-  For row = FIRST_ROW To LAST_ROW
+  For row = FIRST_ROW To lastRow
     If ActiveSheet.Range(SELL_COIN & row).Value > 0 Then
       ReDim Preserve sales(3, sale)
       sales(0, sale) = ActiveSheet.Range(TX_DATE & row).Value
@@ -267,28 +278,8 @@ Function calculateFifo()
 End Function
 
 Sub fifo()
-  ActiveSheet.Range(TX_STATUS & FIRST_ROW & ":" & GAIN_LOSS & LAST_ROW ).Value = ""
   validate
   getLots
   getSales
   calculateFifo
 End Sub
-
-' Changelog ---------------------------------------------------------------------------------------
-
-' 0.4 -----
-' - Minor bug fixes as a result of testing
-' - Updated long-term test to more strictly adhere to guidance (using anniversary date vs 365 days)
-
-' 0.3 -----
-' - Moved date and coin value validation to its own function to prevent partial calculation
-' - Added commenting to coin splits
-
-' 0.2 -----
-' - Sales with long-term and short-term gains are split
-' - Error handling for coin sales beyond lot totals
-' - Date validation and data validation added
-' - Added status column for lot status and short vs. long-term gains and losses
-
-' 0.1 -----
-' - Built initial logic for FIFO cost basis
