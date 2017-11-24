@@ -1,6 +1,20 @@
 # Coin Cost Basis
 
-This macro-enabled spreadsheet helps you keep track of the cost basis of your cryptyocurrecny trades. Using the first-in, first-out (FIFO) cost method (the most commonly used cost method for calculating capital gains), Coin Cost Basis will help you calculate, and distinguish between long-term and short-term gains and losses.
+This macro-enabled spreadsheet will help you track cost basis and long-term or short-term treatment for your cryptocurrency trades. It uses the first-in, first-out (FIFO) cost method, which is commonly used for tax compliance.
+
+## Usage
+
+- Download and open coin-cost-basis.xlsm
+- Enable macros if prompted
+- Create a copy of the blank sheet for each coin or asset you trade
+- Enter your buys in the left-hand buy columns. Include any fees related to your purchase
+- Enter your sales in the right-hand sell columns. Net out any fees related to your sale
+- Each transaction must include a date
+- The notes column is optional, and a great place to track fees, or trades between different assets
+- Add rows as needed
+
+## Advanced Usage
+If you want to add columns, or change the layout, you'll need to open the VBA module and update the constant variables, ensuring that they are mapped to the correct columns.
 
 ## Changelog
 
@@ -24,13 +38,5 @@ This macro-enabled spreadsheet helps you keep track of the cost basis of your cr
 
 ### 0.1
 - Built initial logic for FIFO cost basis
-  
-## Usage
-
-- Download and open coin-cost-basis.xlsm, enable macros if prompted
-- Create a copy of the blank spreadsheet for each coin you trade
-- Enter your buys in the buys columns. Include the total coins acquired, and the cost in your local currency (make sure to include any fees related to your purchase, these are typically eligible components of cost basis)
-- Enter your sales in the sell columns (again, netting out any fees from the amount received)
-- Each transaction needs a date, the note is optional
 
 *Disclaimer: This spreadsheet does not constitute legal or tax advice.  Tax laws and regulations change frequently, and their application can vary widely based on the specific facts and circumstances involved. You are responsible for consulting with your own professional tax advisors concerning specific tax circumstances for your business. I disclaim any responsibility for the accuracy or adequacy of any positions taken by you in your tax returns.*
