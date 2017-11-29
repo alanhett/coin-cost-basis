@@ -18,9 +18,13 @@ If you want to add columns, or change the layout, you'll need to open the VBA mo
 
 ## Changelog
 
+### 0.6
+- Fixed a bug where Excel's math precision was creating extraneous loops
+- Created new variables to replace numerous array calls and improve readability
+
 ### 0.5
-- Rows are now unlimited. Add rows to the template as needed.
-- Additional date validation added.
+- Rows are now unlimited. Add rows to the template as needed
+- Additional date validation added
 
 ### 0.4
 - Minor bug fixes as a result of testing
