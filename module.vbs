@@ -146,7 +146,7 @@ Function calculateFifo()
   Dim sellRow As Integer
   Dim lotDate As Date
   Dim lotCoin As Double
-  Dim lotRecd As Double
+  Dim lotCost As Double
   Dim lotRow As Integer
 
   shift = 0
