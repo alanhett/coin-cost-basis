@@ -26,7 +26,7 @@ Function validate()
   coinCheck = 0
   lastDate = 0
 
-  ' find last row with data 
+  ' find last row with data
   lastRow = Cells.Find(What:="*", After:=Range("A1"), LookAt:=xlPart, LookIn:=xlFormulas, _
             SearchOrder:=xlByRows, SearchDirection:=xlPrevious, MatchCase:=False).Row
 
@@ -96,6 +96,7 @@ End Function
 ' set global variables ---------------------------------------------------------------------------
 Function getLots()
   lot = 0
+  ReDim lots(3, 0)
   For row = FIRST_ROW To lastRow
     If ActiveSheet.Range(BUY_COIN & row).Value > 0 Then
       ReDim Preserve lots(3, lot)
@@ -110,6 +111,7 @@ End Function
 
 Function getSales()
   sale = 0
+  ReDim sales(3, 0)
   For row = FIRST_ROW To lastRow
     If ActiveSheet.Range(SELL_COIN & row).Value > 0 Then
       ReDim Preserve sales(3, sale)
@@ -169,6 +171,13 @@ Function calculateFifo()
     For lot = lotCount To UBound(lots, 2)
 
       lotDate = lots(0, lot)
+      ' Moving these DateAdd calls out of the up ahead of the Else block
+      ' fixes an overflow exception when calling DateAdd on Excel on MacOS
+      thisTerm = DateAdd("yyyy", 1, lotDate)
+      If lot + 1 <= UBound(lots, 2) Then
+         nextTerm = DateAdd("yyyy", 1, lots(0, lot + 1))
+      End If
+      
       lotCoin = lots(1, lot)
       lotCost = lots(2, lot)
       lotRow = lots(3, lot)
@@ -179,7 +188,7 @@ Function calculateFifo()
       Debug.Print lotCoinRemain
       If Round(sellCoinRemain, 6) <= Round(lotCoinRemain, 6) Then
         With ActiveSheet
-          If sellCoinRemain = lotCoinRemain And lotCount < UBound(lots, 2) Then 
+          If sellCoinRemain = lotCoinRemain And lotCount < UBound(lots, 2) Then
             .Range(TX_STATUS & lotRow).Value = "100% Sold"
             lotCount = lotCount + 1
             lotCoinRemain = lots(1, lotCount)
@@ -203,7 +212,7 @@ Function calculateFifo()
           totalCost = totalCost + (lotCost * (sellCoinRemain / lotCoin))
           costBasis = sellCoin * (totalCost / totalCoin) * (1 - splitFactor)
           gainLoss = (sellRecd * (1 - splitFactor)) - costBasis
-          .Range(COST_BASIS & sellRow + shift).Value = costBasis 
+          .Range(COST_BASIS & sellRow + shift).Value = costBasis
           .Range(GAIN_LOSS & sellRow + shift).Value = gainLoss
           
         End With
@@ -213,12 +222,10 @@ Function calculateFifo()
       ' determine if there is a term split, and calculate running totals
       Else
 
-        ' look ahead for a term split, and if a split exists, 
+        ' look ahead for a term split, and if a split exists,
         ' set the split factor (% to allocate to either side of the split),
         ' and calculate and post the first half of the split
         Debug.Print "Look Ahead!"
-        thisTerm = DateAdd("yyyy", 1, lotDate)
-        nextTerm = DateAdd("yyyy", 1, lots(0, lot + 1))
         If DateDiff("d", thisTerm, sellDate) >= 0 _
         And DateDiff("d", nextTerm, sellDate) < 0 Then
 
@@ -235,7 +242,10 @@ Function calculateFifo()
           gainLoss = (sellRecd * splitFactor) - costBasis
 
           With ActiveSheet
-
+            ' Fixes application error when adding comments to cells while multiple sheets are selected
+            ' https://stackoverflow.com/questions/45058850/addcomment-on-multiple-sheets-vba-excel
+            .Select
+                        
             originalDate = .Range(TX_DATE & sellRow + shift).Value
             originalCoin = .Range(SELL_COIN & sellRow + shift).Value
             originalRecd = .Range(SELL_RECD & sellRow + shift).Value
@@ -243,17 +253,17 @@ Function calculateFifo()
             .Range(COST_BASIS & sellRow + shift).Value = costBasis
             .Range(GAIN_LOSS & sellRow + shift).Value = gainLoss
 
-            If Not .Range(TX_DATE & sellRow + shift).Comment Is Nothing Then
-              .Range(TX_DATE & sellRow + shift).Comment.Delete
-            End If
-
-            .Range(TX_DATE & sellRow + shift).AddComment _
-                "This sale was split into two sales (rows " & sellRow + shift _
-              & " and " & sellRow + shift + 1 _
-              & ") because it included both long-term and short-term cost components." _
-              & Chr(10) & "The original amount of coin sold was " & Round(originalCoin, 6) & ", " _
-              & "and the original amount received was " & Round(originalRecd, 2) & "."
-            .Range(TX_DATE & sellRow + shift).Comment.Shape.TextFrame.AutoSize = True
+            With .Range(TX_DATE & sellRow + shift)
+                .ClearComments
+                With .AddComment
+                    .Text "This sale was split into two sales (rows " & sellRow + shift _
+                          & " and " & sellRow + shift + 1 _
+                          & ") because it included both long-term and short-term cost components." _
+                          & Chr(10) & "The original amount of coin sold was " & Round(originalCoin, 6) & ", " _
+                          & "and the original amount received was " & Round(originalRecd, 2) & "."
+                End With
+            End With
+             
             .Range(SELL_COIN & sellRow + shift).Value = originalCoin * splitFactor
             .Range(SELL_RECD & sellRow + shift).Value = originalRecd * splitFactor
             .Range(TX_STATUS & sellRow + shift).Value = "Long-term"
@@ -261,18 +271,19 @@ Function calculateFifo()
             .Range("A" & sellRow + shift + 1).EntireRow.Insert
             shift = shift + 1
 
-            If Not .Range(TX_DATE & sellRow + shift).Comment Is Nothing Then
-              .Range(TX_DATE & sellRow + shift).Comment.Delete
-            End If
-
             .Range(TX_DATE & sellRow + shift).Value = originalDate
-            .Range(TX_DATE & sellRow + shift).AddComment _
-                "This sale was split into two sales (rows " & sellRow + shift - 1 _
-              & " and " & sellRow + shift _
-              & ") because it included both long-term and short-term cost components." _
-              & Chr(10) & "The original amount of coin sold was " & Round(originalCoin, 6) & ", " _
-              & "and the original amount received was " & Round(originalRecd, 2) & "."
-            .Range(TX_DATE & sellRow + shift).Comment.Shape.TextFrame.AutoSize = True
+              
+            With .Range(TX_DATE & sellRow + shift)
+                .ClearComments
+                With .AddComment
+                     .Text "This sale was split into two sales (rows " & sellRow + shift - 1 _
+                          & " and " & sellRow + shift _
+                          & ") because it included both long-term and short-term cost components." _
+                          & Chr(10) & "The original amount of coin sold was " & Round(originalCoin, 6) & ", " _
+                          & "and the original amount received was " & Round(originalRecd, 2) & "."      
+                End With
+            End With
+              
             .Range(SELL_COIN & sellRow + shift).Value = originalCoin * (1 - splitFactor)
             .Range(SELL_RECD & sellRow + shift).Value = originalRecd * (1 - splitFactor)
             .Range(TX_STATUS & sellRow + shift).Value = "Short-term"
@@ -281,9 +292,9 @@ Function calculateFifo()
           totalCoin = 0
           totalCost = 0
 
-        ' if there isn't a term split, add to the running totals 
+        ' if there isn't a term split, add to the running totals
         ' and continue on to the next lot
-        Else 
+        Else
           totalCoin = totalCoin + lotCoinRemain
           totalCost = totalCost + (lotCost * (lotCoinRemain / lotCoin))
         End If
